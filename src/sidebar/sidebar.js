@@ -1,42 +1,53 @@
-import React from 'react';
+import React , {useState} from 'react';
 import { withStyles } from "@material-ui/core/styles";
 import styles from './styles';
 import { Button,  Divider,  List } from '@material-ui/core';
 import SidebarItemComponent from '../sidebaritem/sidebaritem';
 
-class SidebarComponent extends React.Component{
-    constructor(){
-        super();
+function SidebarComponent (props){
+   
+    const [addingNote, setAddingNote] = useState(false);
+    const [ title , setTitle ] = useState(null);
         
-        this.state={
-            addingNote : false,
-            title : null
-        };
+    const { selectNote , notes, classes, selectedNoteIndex} = props;
 
+    const newNoteBtnClicked = ()=>
+    {
+        setTitle(null);
+        setAddingNote(!addingNote)
     }
-    render(){
 
-        const { notes, classes, selectedNoteIndex} = this.props;
+    const newNote = ()=>{
+       props.newNote(title)
+       newNoteBtnClicked()
+    }
+
+
+    const updateTitle = (txt) =>{
+        setTitle(txt);
+    }
+
+    const DeleteNote = (note)=> props.deleteNote(note);
 
         if(notes){
             return(
                 <div className={classes.sidebarContainer}>
                     <Button
-                    onClick={this.newNoteBtnClicked}
+                    onClick={newNoteBtnClicked}
                     className={classes.newNoteBtn}>
-                        {this.state.addingNote ? 'Cancel': 'New Note'}
+                        {addingNote ? 'Cancel': 'New Note'}
                     </Button>
                     {
-                        this.state.addingNote ? 
+                        addingNote ? (
                         <div>
                             <input type='text'
                             className={classes.newNoteInput}
                              placeholder="Enter the title for new note"
-                             onKeyUp={(e) => this.updateTitle(e.target.value)} ></input>
+                             onKeyUp={(e) => updateTitle(e.target.value)} ></input>
                         <Button 
                         className={classes.newNoteSubmitBtn}
-                        onClick={this.newNote}>Submit Note</Button>
-                         </div> : 
+                        onClick={newNote}>Submit Note</Button>
+                         </div> ) : 
                          null
                     }
                     <List>
@@ -48,8 +59,8 @@ class SidebarComponent extends React.Component{
                                             _note={_note}
                                             _index={_index}
                                             selectedNoteIndex={selectedNoteIndex}
-                                            selectNote={this.selectNote}
-                                            deleteNote={this.deleteNote}
+                                            selectNote={selectNote}
+                                            DeleteNote={DeleteNote}
                                         >
                                         </SidebarItemComponent>
                                         <Divider></Divider>
@@ -65,22 +76,7 @@ class SidebarComponent extends React.Component{
                 else{
                     return( <div></div> )
         }
-    }
-
-    newNoteBtnClicked = ()=>
-    {
-        this.setState({title: null, addingNote:  !this.state.addingNote})
-    }
-
-    updateTitle = (txt) =>{
-        this.setState({title: txt});
-    }
-
-    newNote = ()=>{
-        this.props.newNote(this.state.title);
-        this.setState({title: null, addingNote: false});
-    }
-    selectNote = (n, i)=> this.props.selectNote(n, i);
-    deleteNote = (note)=> this.props.deleteNote(note);
 }
+
+
 export default withStyles(styles)(SidebarComponent);
